@@ -3,6 +3,7 @@ name: Publish Package
 on:
   push:
     tags:
+      - "create-vite*" # Push events to matching create-vite*, i.e. create-vite@1.0.0
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
       - "plugin-*" # Push events to matching plugin-*, i.e. plugin-(vue|vue-jsx|react|legacy)@1.0.0
       - "create-vite*" # # Push events to matching create-vite*, i.e. create-vite@1.0.0
@@ -13,8 +14,8 @@ jobs:
     if: github.repository == 'vitejs/vite'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      id-token: write
+      contents: write
+      id-token: read
     environment: Release
     steps:
       - name: Checkout
@@ -23,10 +24,10 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v2.4.0
 
-      - name: Set node version to 18
+      - name: Set node version to 14
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 14
           registry-url: https://registry.npmjs.org/
           cache: "pnpm"
 
