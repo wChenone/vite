@@ -18,7 +18,7 @@ See [Project Root](/guide/#index-html-and-project-root) for more details.
 Base public path when served in development or production. Valid values include:
 
 - Absolute URL pathname, e.g. `/foo/`
-- Full URL, e.g. `https://foo.com/` (The origin part won't be used in development)
+- Full URL, e.g. `https://bar.com/foo/` (The origin part won't be used in development so the value is the same as `/foo/`)
 - Empty string or `./` (for embedded deployment)
 
 See [Public Base Path](/guide/build#public-base-path) for more details.
@@ -225,7 +225,7 @@ Note if an inline config is provided, Vite will not search for other PostCSS con
 
 Specify options to pass to CSS pre-processors. The file extensions are used as keys for the options. The supported options for each preprocessors can be found in their respective documentation:
 
-- `sass`/`scss` - [Options](https://sass-lang.com/documentation/js-api/interfaces/LegacyStringOptions).
+- `sass`/`scss` - top level option `api: "legacy" | "modern"` (default `"legacy"`) allows switching which sass API to use. [Options (legacy)](https://sass-lang.com/documentation/js-api/interfaces/LegacyStringOptions), [Options (modern)](https://sass-lang.com/documentation/js-api/interfaces/stringoptions/).
 - `less` - [Options](https://lesscss.org/usage/#less-options).
 - `styl`/`stylus` - Only [`define`](https://stylus-lang.com/docs/js.html#define-name-node) is supported, which can be passed as an object.
 
@@ -242,6 +242,12 @@ export default defineConfig({
         define: {
           $specialColor: new stylus.nodes.RGBA(51, 197, 255, 1),
         },
+      },
+      scss: {
+        api: 'modern', // or "legacy"
+        importers: [
+          // ...
+        ],
       },
     },
   },
@@ -291,6 +297,10 @@ Whether to enable sourcemaps during dev.
 - **Default:** `'postcss'`
 
 Selects the engine used for CSS processing. Check out [Lightning CSS](../guide/features.md#lightning-css) for more information.
+
+::: info Duplicate `@import`s
+Note that postcss (postcss-import) has a different behavior with duplicated `@import` from browsers. See [postcss/postcss-import#462](https://github.com/postcss/postcss-import/issues/462).
+:::
 
 ## css.lightningcss
 

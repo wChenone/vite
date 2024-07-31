@@ -409,16 +409,14 @@ function esbuildScanPlugin(
         // Avoid matching the content of the comment
         raw = raw.replace(commentRE, '<!---->')
         const isHtml = p.endsWith('.html')
-        scriptRE.lastIndex = 0
         let js = ''
         let scriptId = 0
-        let match: RegExpExecArray | null
-        while ((match = scriptRE.exec(raw))) {
-          const [, openTag, content] = match
-          const typeMatch = openTag.match(typeRE)
+        const matches = raw.matchAll(scriptRE)
+        for (const [, openTag, content] of matches) {
+          const typeMatch = typeRE.exec(openTag)
           const type =
             typeMatch && (typeMatch[1] || typeMatch[2] || typeMatch[3])
-          const langMatch = openTag.match(langRE)
+          const langMatch = langRE.exec(openTag)
           const lang =
             langMatch && (langMatch[1] || langMatch[2] || langMatch[3])
           // skip non type module script
@@ -442,7 +440,7 @@ function esbuildScanPlugin(
           } else if (p.endsWith('.astro')) {
             loader = 'ts'
           }
-          const srcMatch = openTag.match(srcRE)
+          const srcMatch = srcRE.exec(openTag)
           if (srcMatch) {
             const src = srcMatch[1] || srcMatch[2] || srcMatch[3]
             js += `import ${JSON.stringify(src)}\n`
@@ -482,7 +480,7 @@ function esbuildScanPlugin(
 
             const virtualModulePath = JSON.stringify(virtualModulePrefix + key)
 
-            const contextMatch = openTag.match(contextRE)
+            const contextMatch = contextRE.exec(openTag)
             const context =
               contextMatch &&
               (contextMatch[1] || contextMatch[2] || contextMatch[3])

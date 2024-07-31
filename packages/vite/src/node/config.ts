@@ -45,6 +45,7 @@ import {
   isFilePathESM,
   isNodeBuiltin,
   isObject,
+  isParentDirectory,
   mergeAlias,
   mergeConfig,
   normalizeAlias,
@@ -604,7 +605,7 @@ export async function resolveConfig(
     ? !isBuild || config.build?.ssr
       ? '/'
       : './'
-    : resolveBaseUrl(config.base, isBuild, logger) ?? '/'
+    : (resolveBaseUrl(config.base, isBuild, logger) ?? '/')
 
   const resolvedBuildOptions = resolveBuildOptions(
     config.build,
@@ -914,6 +915,20 @@ assetFileNames isn't equal for every build.rollupOptions.output. A single patter
     )
   }
 
+  const resolvedBuildOutDir = normalizePath(
+    path.resolve(resolved.root, resolved.build.outDir),
+  )
+  if (
+    isParentDirectory(resolvedBuildOutDir, resolved.root) ||
+    resolvedBuildOutDir === resolved.root
+  ) {
+    resolved.logger.warn(
+      colors.yellow(`
+(!) build.outDir must not be the same directory of root or a parent directory of root as this could cause Vite to overwriting source files with build outputs.
+`),
+    )
+  }
+
   return resolved
 }
 
@@ -1059,7 +1074,7 @@ async function bundleConfigFile(
     absWorkingDir: process.cwd(),
     entryPoints: [fileName],
     write: false,
-    target: ['node18'],
+    target: [`node${process.versions.node}`],
     platform: 'node',
     bundle: true,
     format: isESM ? 'esm' : 'cjs',
